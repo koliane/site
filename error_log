@@ -1,0 +1,21 @@
+_JS  2017-01-01 20:09:22 Error __hello__ in http://localhost/trade/js/main.js:161;  browser = Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36;  REMOTE_ADDR = ::1;  SERVER_PROTOCOL = HTTP/1.1;  REQUEST_METHOD = GET
+	Error
+	    at getError (http://localhost/trade/:22:29)
+	    at writeLog (http://localhost/trade/:27:34)
+	    at http://localhost/trade/js/main.js:161:1
+_JS  2017-01-02 22:09:20 Error __hello__ in http://localhost/trade/js/main.js:166;  browser = Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36;  REMOTE_ADDR = ::1;  SERVER_PROTOCOL = HTTP/1.1;  REQUEST_METHOD = GET
+	Error
+	    at getError (http://localhost/trade/:22:29)
+	    at writeLog (http://localhost/trade/:27:34)
+	    at http://localhost/trade/js/main.js:166:1
+_JS  2017-01-02 22:09:43 Error __hello__ in http://localhost/trade/js/main.js:166;  browser = Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36;  REMOTE_ADDR = ::1;  SERVER_PROTOCOL = HTTP/1.1;  REQUEST_METHOD = GET
+	Error
+	    at getError (http://localhost/trade/:22:29)
+	    at writeLog (http://localhost/trade/:27:34)
+	    at http://localhost/trade/js/main.js:166:1
+_JS  2017-01-02 22:41:32 Error __Не верный формат входных параметров__ in http://localhost/trade/js/main.js:21;  browser = Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36;  REMOTE_ADDR = ::1;  SERVER_PROTOCOL = HTTP/1.1;  REQUEST_METHOD = GET
+	Error
+	    at getError (http://localhost/trade/:22:29)
+	    at writeLog (http://localhost/trade/:27:34)
+	    at Bar.equalsTime (http://localhost/trade/js/main.js:21:13)
+	    at http://localhost/trade/js/main.js:69:4

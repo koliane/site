@@ -1,0 +1,15 @@
+a {
+	background-color: #0a0;
+}
+i {
+	margin:50px;
+	color:red;
+	font-style: normal;
+	padding: 20px;
+	border:1px solid black;
+	outline:2px dotted red;
+	outline-offset: 1px;
+}
+p{
+	text-indent: -10px;
+}
