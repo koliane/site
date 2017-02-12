@@ -23,8 +23,6 @@ else {
     $data = getDataFromDB( $tableName, $timeFrame, $startTime, $endTimeOrCount);
 }
 
-
-$data = array();
 $data = json_encode( $data );
 echo $data;
 ?>

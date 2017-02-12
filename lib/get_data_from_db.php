@@ -165,6 +165,7 @@ function getDataFromDB($tableName, $timeFrame, $startTime, $endTimeOrCount = 100
         writeLog('Массив полученных данных ПУСТ');
         return false;
     }
+
     return $arrTerms;
 }
 
