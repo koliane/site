@@ -1,7 +1,7 @@
 <script>
 
-
-var tf = new TimeFrame();
+var manager = new Manager();
+//var tf = new TimeFrame();
 //alert(tf._generateNextId());
 //alert(tf.startId);
 

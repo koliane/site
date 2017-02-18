@@ -23,7 +23,7 @@ Bar.prototype = {
                         var arrOfBarFields = [ arrTime.year, arrTime.month, arrTime.day, arrTime.hour, arrTime.minute ];
                         arrTime = arrOfBarFields;
                     }
- 
+
                     if( !(arrTime instanceof Array) || typeof fieldsForEquals !=='string' || arrTime.length === 0 ){
                         writeLog('Не верный формат входных параметров');
                         return false;

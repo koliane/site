@@ -69,8 +69,6 @@ TimeFrame.prototype = {
 
                             /**Если последний элемент массива fullChart равен первому элементу массива arrBars, то присоединяем arrBars к концу fullChart, иначе - к началу*/
                             if( this.fullChart.length === 0 || this.fullChart[ this.fullChart.length - 1 ].equalsTime( arrBars[0]) === 0){
-//                                console.table( arrBars.map( function( item ){
-//                                this.fullChart = this.fullChart.concat( arrBars.map( function( item ){
                                 this.fullChart = this.fullChart.concat( (arrBars.slice(1)).map( function( item ){
                                     item.id = self._generateNextId();
                                     /**Преобразуем строки к числовому типу*/
@@ -83,9 +81,7 @@ TimeFrame.prototype = {
                                     return item;
                                 }) );
                             } else {
-                                alert();
                                 this.fullChart =  (arrBars.slice(0,-1)).map( function( item ){
-//                                this.fullChart =  arrBars.map( function( item ){
                                     item.id = self._generatePrevId();
                                     /**Преобразуем строки к числовому типу*/
                                     for(var key in item) {
@@ -98,20 +94,6 @@ TimeFrame.prototype = {
                                 }).concat(this.fullChart);
                             }
 
-//                            if( this.fullChart.length === 0 ){
-//                                this.fullChart = arrBars.map( function( item ){
-//                                    item.id = self._generateNextId();
-//                                    /**Преобразуем строки к числовому типу*/
-//                                    for(var key in item) {
-////                                        if( item.hasOwnProperty( key ) )
-//                                        if( key=="year" || key=="month" || key=="day" || key=="hour" || key=="minute" || key=="open" ||
-//                                            key=="high" || key=="low" || key=="close" || key=="volume"  )
-//                                            item[ key ] = +item[ key ];
-//                                    }
-//                                    /**----------------------*/
-//                                    return item;
-//                                });
-//                            }
                         },
     _generateNextId:  function(){
                             return ++this.endId;

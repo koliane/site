@@ -8,7 +8,9 @@
     <? require_once "/lib/js_write_log.php"; ?>
     <? require_once "js/Bar.php"; ?>
     <? require_once "js/Pair.php"; ?>
-    <? require_once "js/TimeFrame.php"; ?>
+    <? require_once "js/GraphicBar.php"; ?>
+    <? require_once "js/GraphicChart.php"; ?>
+    <? require_once "js/Manager.php"; ?>
     <? require_once "js/main.php"; ?>
 
     <?/*
@@ -16,7 +18,9 @@
     <script type="text/javascript" src="js/Pair.js" defer></script>
     <script type="text/javascript" src="js/TimeFrame.js" defer></script>
     <script type="text/javascript" src="js/main.js" defer></script>
-*/?>
+*/
+
+    ?>
     <link rel="stylesheet" type="text/css" href="css/main.css">
 </HEAD>
 <BODY>
