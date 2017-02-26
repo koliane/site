@@ -1,13 +1,17 @@
 <script>
-function GrBar( bar, grContext ) {
+/*bar = { x: .., open: .., high: .., low: .., close: .., id: .. }*/
+function GrBar( bar ) {
     this.x = bar.x;
-    this.yOpen = bar.yOpen;
-    this.yHigh = yHigh;
-    this.yLow = yLow;
-    this.yClose = yClose;
-    this.id = id;
+    this.yOpen = bar.open;
+    this.yHigh = bar.high;
+    this.yLow = bar.low;
+    this.yClose = bar.close;
+    this.id = bar.id;
 }
 GrBar.prototype = {
     constructor: GrBar,
+    paint: function(){
+
+    }
 }
 </script>

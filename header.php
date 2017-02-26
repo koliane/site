@@ -5,13 +5,15 @@
 	<meta charset="UTF-8">
 	<title>trade</title>
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+	<script src="bower_components/jcanvas/jcanvas.min.js"></script>
     <? require_once "/lib/js_write_log.php"; ?>
-    <? require_once "js/Bar.php"; ?>
-    <? require_once "js/Pair.php"; ?>
-    <? require_once "js/GraphicBar.php"; ?>
-    <? require_once "js/GraphicChart.php"; ?>
-    <? require_once "js/Manager.php"; ?>
-    <? require_once "js/main.php"; ?>
+    <?// require_once "js/Bar.php"; ?>
+    <?// require_once "js/TimeFrame.php"; ?>
+    <?// require_once "js/Pair.php"; ?>
+    <?// require_once "js/GraphicBar.php"; ?>
+    <?// require_once "js/GraphicChart.php"; ?>
+    <?// require_once "js/WindowsManager.php"; ?>
+    <?// require_once "js/main.php"; ?>
 
     <?/*
     <script type="text/javascript" src="js/Bar.js" defer></script>

@@ -17,8 +17,11 @@
  *
  * @return array список требуемых данных или false в случае ошибки
  */
+$transformDecimalPoint = false;     /**Сдвигать ли точку для цен (удобно для получения целых чисел, с которыми легче работать)*/
 function getDataFromDB($tableName, $timeFrame, $startTime, $endTimeOrCount = 100, $shiftDecimalPlaces="", $namesOutputColumn = 'YEAR,MONTH,DAY,HOUR,MINUTE,OPEN,HIGH,LOW,CLOSE,VOLUME') {
     global $pdo;
+    global $transformDecimalPoint;
+
     $namesOutputColumn = strtoupper($namesOutputColumn);
     $arrDefaultTime=['YEAR','MONTH','DAY','HOUR','MINUTE'];
     $newNamesOutputColumn = $namesOutputColumn;
@@ -32,7 +35,7 @@ function getDataFromDB($tableName, $timeFrame, $startTime, $endTimeOrCount = 100
 
     /**Если $startTime и $endTimeOrCount строковые переменные, то преобразуем их в массив*/
     if( is_string($startTime) ) {
-        if( $startTime === "")
+        if( $startTime == "")
             $startTime = array();
         else
             $startTime = explode(',', $startTime);
@@ -82,7 +85,10 @@ function getDataFromDB($tableName, $timeFrame, $startTime, $endTimeOrCount = 100
                 if(($i = array_search($arr,$arrSearch)) !== false){
                     $i++;
                     $placesAfterPoint = $shiftDecimalPlacesDefault - $shiftDecimalPlaces;
-                    $arr = 'ROUND(' . $arr . "*POW(10,{$shiftDecimalPlaces})" . ',' . $placesAfterPoint . ") as N{$i}";
+                    if( $transformDecimalPoint )
+                        $arr = 'ROUND(' . $arr . "*POW(10,{$shiftDecimalPlaces})" . ',' . $placesAfterPoint . ") as N{$i}";
+                    else
+                        $arr = '(' . $arr .  ") as N{$i}";
                 }
             }
         }
@@ -112,7 +118,6 @@ function getDataFromDB($tableName, $timeFrame, $startTime, $endTimeOrCount = 100
     if(count( $startTime ) === 0){
         $strInnerSelect = "(SELECT {$namesOutputColumn},concat( if(month<10,year*10,year), if(day<10,month*10,month), if(hour<10,day*10,day), if(minute<10,hour*10,hour), minute ) AS COMBO_ID FROM {$tableName} where TIMEFRAME=\"{$timeFrame}\" ORDER BY COMBO_ID DESC LIMIT {$endTimeOrCount}) as INNER_TABLE ";
         $strQuery = "SELECT {$newNamesOutputColumn} from (SELECT * FROM ".$strInnerSelect.' order by COMBO_ID ASC ) as INNER_TABLE2';
-        echo $strQuery;
     }else
     /**Формирование строки запроса исходя из типа $endTimeOrCount*/
     if ( is_array( $endTimeOrCount ) ) {

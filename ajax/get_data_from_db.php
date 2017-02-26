@@ -7,10 +7,16 @@ $pdo = connectToDB();
 $tableName = $_REQUEST['table'];
 $timeFrame = $_REQUEST['timeFrame'];
 $startTime = $_REQUEST['startTime'];
+
 if( isset($_REQUEST['endTime']) )
     $endTimeOrCount = $_REQUEST['endTime'];
 else
     $endTimeOrCount = false;
+
+//$tableName = 'eurusd';
+//$timeFrame = 'm1';
+//$startTime = '';
+//$endTimeOrCount = 6;
 
 if(!$endTimeOrCount)
     $data = getDataFromDB( $tableName, $timeFrame, $startTime);
@@ -23,6 +29,9 @@ else {
     $data = getDataFromDB( $tableName, $timeFrame, $startTime, $endTimeOrCount);
 }
 
+//echo '<pre>';
+//print_r($data);
+//echo '</pre>';
 $data = json_encode( $data );
 echo $data;
 ?>

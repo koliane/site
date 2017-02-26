@@ -1,14 +1,13 @@
 <script>
-function TimeFrame(){
-    this.name="m1";
-    this.pairName = "eurusd";
+function TimeFrame(pairName, name, managerSettings){
+    this.pairName = pairName;
+    this.name = name;
     // this.visibleWindow = [];
 //    this.fullChart = [];
-    this.fullChart = [new Bar(2016,7,1,13,0)];
-//    this.fullChart = [new Bar(2016,7,1,13,23)];
+    this.fullChart = [];
     this.startId = 0;
     this.endId = 0;
-    this.addBarsToChart([2016, 7, 1, 13, 0]);
+    this.addBarsToChart("", managerSettings.countBarsForGet);
 }
 
 
@@ -19,12 +18,19 @@ TimeFrame.prototype = {
     addBarsToChart: function(startTime, endTimeOrCount){
                             var paramObj;
                             var res;
+
+                            if( typeof endTimeOrCount === 'undefined' && typeof startTime === 'undefined'){
+                                writeLog('Входные параметры отсутствуют или не определены');
+                                return false;
+                            }
+
+                            /**Определяем какие*/
                             if( typeof endTimeOrCount === 'undefined')
                                 paramObj = {table: this.pairName, timeFrame: this.name, startTime: startTime }
                             else
                                 paramObj = {table: this.pairName, timeFrame: this.name, startTime: startTime, endTime: endTimeOrCount }
 
-                            self=this;
+                            var self=this;
 
                             $.ajax({
                                 url:"/trade/ajax/get_data_from_db.php",
@@ -33,7 +39,7 @@ TimeFrame.prototype = {
                                 success: function(jsonData){
                                     if(jsonData == false)
                                         console.warn('Ошибка на стороне сервера. Необходимо проверить входные параметры вызывающейся функии и подключение к базе данных');
-
+//                                    console.log(jsonData);
                                     try {
                                         var data = JSON.parse(jsonData);
 
@@ -66,9 +72,21 @@ TimeFrame.prototype = {
                                 writeLog('Входной параметр функции либо пуст, либо не является массивом');
                                 return false;
                             }
-
+                            /**Если массив fullChart пустой, то добавляем все полученные данные*/
+                            if(this.fullChart.length === 0){
+                                this.fullChart = arrBars.map( function( item ){
+                                    item.id = self._generateNextId();
+                                    /**Преобразуем строки к числовому типу*/
+                                    for(var key in item) {
+                                        if( key=="year" || key=="month" || key=="day" || key=="hour" || key=="minute" || key=="open" ||
+                                            key=="high" || key=="low" || key=="close" || key=="volume"  )
+                                            item[ key ] = +item[ key ];
+                                    }
+                                    return item;
+                                }) ;
+                            }else
                             /**Если последний элемент массива fullChart равен первому элементу массива arrBars, то присоединяем arrBars к концу fullChart, иначе - к началу*/
-                            if( this.fullChart.length === 0 || this.fullChart[ this.fullChart.length - 1 ].equalsTime( arrBars[0]) === 0){
+                            if(  this.fullChart[ this.fullChart.length - 1 ].equalsTime( arrBars[0]) === 0){
                                 this.fullChart = this.fullChart.concat( (arrBars.slice(1)).map( function( item ){
                                     item.id = self._generateNextId();
                                     /**Преобразуем строки к числовому типу*/
