@@ -8,7 +8,7 @@ body {
 	position: absolute;
 }
 canvas:nth-of-type(1) {
-	background-color: lightgrey;
+	/*background-color: lightgrey;*/
 }
 canvas:nth-of-type(2) {
 	background-color: rgb(227, 231, 253);

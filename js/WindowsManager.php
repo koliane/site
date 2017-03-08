@@ -6,26 +6,31 @@
         this.defaultHeightWindow = 350;
         this.defaultTopIndent = 40;
         this.defaultBottomIndent = 40;
-        this.defaultRightIndent = 30;
-        this.defaultLeftIndent = 0;
+        this.defaultRightIndent = 0;
+//        this.defaultLeftIndent = 0;
         this.defaultWidthPriceIndicator = 80;
         this.defaultHeightTimeIndicator = 80;
 
-        this.defaultWidthBar = 15;
+        this.defaultWidthBar = 16;
         this.defaultBarSpacing = 5;
         this.defaultScale = 5;
+
+        this.defaultBuyBarColor = '#00E100';
+        this.defaultSellBarColor = '#FF0000';
+        this.defaultBodyBorderBarColor = '#9B9B9B';
+        this.defaultTopShadowBarColor = '#9B9B9B';
+        this.defaultBottomShadowBarColor = '#9B9B9B';
 
         this.arrPairs = [];
         this.arrWindow = [];
         this.lastChartIndex = 0;
-        this.arrPairs.push( new Pair( 'eurusd', 'm1', {countBarsForGet:5} ));
+        this.arrPairs.push( new Pair( 'eurusd', 'm1', this.arrPairs.length, {countBarsForGet:5, decimalPlaces: 4} ));
 
-        this.createNewWindow(1000, 350, 3, 3);
-        this.arrWindow.push( new GrChart(   self.defaultWidthWindow, self.defaultHeightWindow, { barSpacing: self.defaultBarSpacing
-                                            , widthBar: self.defaultWidthBar
-                                            , priceIndicatorWidth: self.defaultWidthPriceIndicator, timeIndicatorHeight: self.defaultHeightTimeIndicator
-                                            , topIndent: self.defaultTopIndent, bottomIndent: self.defaultBottomIndent, lastChartIndex: self.lastChartIndex
-                            , rightIndent: self.defaultRightIndent, leftIndent: self.defaultLeftIndent}) );
+
+        this.arrWindow.push( this.createNewWindow(0));
+//        console.log(this.arrPairs[0].timeFrames[0].fullChart);
+
+
     }
     WindowsManager.prototype = {
         constructor: WindowsManager,
@@ -38,7 +43,7 @@
          * @param settingsPriceFields - объект, в котором задаются настройки для полей "цен". Свойства leftWidth, rightWidth (ширина левого и правого полей)
          * @param settingsTimeFields - объект, в котором задаются настройки для полей "времени". Свойства topHeight, bottomHeight
          */
-        createNewWindow: function(width, height, posPriceFields, posTimeFields, settingsPriceFields, settingsTimeFields){
+        createNewWindow: function( pairId, width, height, posPriceFields, posTimeFields, settingsPriceFields, settingsTimeFields){
                                         ++this.lastChartIndex;
                                         /**Если параметры не заданы, то используем параметры по умолчанию*/
                                         width = width || this.defaultWidthWindow;
@@ -111,7 +116,7 @@
                                         }
 
 
-                                        console.log(width, height, posPriceFields,posTimeFields, settingsPriceFields.rightWidth,settingsTimeFields.bottomHeight, settingsPriceFields.rightWidth+settingsPriceFields.leftWidth );
+//                                        console.log(width, height, posPriceFields,posTimeFields, settingsPriceFields.rightWidth,settingsTimeFields.bottomHeight, settingsPriceFields.rightWidth+settingsPriceFields.leftWidth );
 
 
 
@@ -168,6 +173,31 @@
                                         var strHtml ='<div id="window'+(this.lastChartIndex)+'" class="window">'
                                                         + strMainCanv + strTopCanv + strBottomCanv + strLeftCanv + strRightCanv + '</div>';
                                         $('.windows').append( strHtml );
+
+                                        this.arrWindow.push( new GrChart( mainCanvasWidth, mainCanvasHeight,
+                                            {
+                                                settingsPriceFields: settingsPriceFields,
+                                                settingsTimeFields: settingsTimeFields,
+
+                                                topIndent: this.defaultTopIndent,
+//                                                leftIndent: this.defaultLeftIndent,
+                                                rightIndent: this.defaultRightIndent,
+                                                bottomIndent: this.defaultBottomIndent,
+
+                                                barSpacing: this.defaultBarSpacing,
+                                                widthBar: this.defaultWidthBar,
+                                                lastChartIndex: this.lastChartIndex,
+
+                                                buyBarColor: this.defaultBuyBarColor,
+                                                sellBarColor: this.defaultSellBarColor,
+                                                bodyBorderBarColor: this.defaultBodyBorderBarColor,
+                                                topShadowBarColor: this.defaultTopShadowBarColor,
+                                                bottomShadowBarColor: this.defaultBottomShadowBarColor,
+
+                                                decimalPlaces: this.arrPairs[pairId].decimalPlaces,
+                                            }, this )
+                                        );
+                                        return this.lastChartIndex;
                                     },
         paint: function(){
 
