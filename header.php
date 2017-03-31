@@ -17,7 +17,7 @@
     <?// require_once "js/GraphicChart.php"; ?>
     <?// require_once "js/WindowsManager.php"; ?>
     <?// require_once "js/main.php"; ?>
-
+    <? require_once 'js/generatePrices.php';?>
     <?/*
     <script type="text/javascript" src="js/Bar.js" defer></script>
     <script type="text/javascript" src="js/Pair.js" defer></script>

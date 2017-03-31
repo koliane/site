@@ -3,10 +3,15 @@
 
     function GrChart(width, height, grSettings, context) {
         var self = this;
-
         this.namePair = grSettings
 
         this.arrBars = context.arrPairs[0].timeFrames[0].fullChart;
+
+        var countOfBars = [20,'m',2,[2015,5,2,23,58]];
+//        this.arrBars = generatePrices(countOfBars,[1.1050,1.1380], 100);
+        this.arrBars = generatePrices(countOfBars,[1.1054,1.1058], 100);
+//        this.arrBars = [{year:2015,month:5,day:3,hour:4, minute:38,open: 1.1399, high: 1.1399, low: 1.1052, close:1.1399}];
+        console.table(this.arrBars );
 //        this.arrGrBars = [];
         /**Размеры canvas*/
         this.width = width;
@@ -19,6 +24,9 @@
 //        this.leftIndent = grSettings.leftIndent;
         this.rightIndent = grSettings.rightIndent;
 
+        /** + Дополнительный отступ сверху для отображения графика по середине*/
+        this.topIndentRelative = 0;
+
 //        this.priceIndicatorWidth = grSettings.priceIndicatorWidth;
 //        this.timeIndicatorHeight = grSettings.timeIndicatorHeight;
 
@@ -26,7 +34,7 @@
 //        this.workWidth = width - grSettings.priceIndicatorWidth;
 //        this.workHeight = height - grSettings.timeIndicatorHeight;
 
-        /**Размеры графика в canvas( учитывая padding)*/
+        /**Размеры графика в canvas( размеры области, в которой может отображаться график)*/
         this.chartWidth = this.width;
 //        this.chartWidth = this.width  - this.rightIndent;
         this.chartHeight = this.height - this.topIndent - this.bottomIndent;
@@ -46,7 +54,7 @@
         this.minPriceOnChart = 9999999999;
 
         /**Отступ от левого края для первого бара (может не входить полностью в canvas)*/
-        this.firstBarIndent;
+        this.firstBarIndent = 0;
 
         /**Цвета баров*/
         this.buyBarColor = grSettings.buyBarColor;
@@ -55,6 +63,17 @@
         this.bodyBorderBarColor =  grSettings.bodyBorderBarColor;
         this.topShadowBarColor =  grSettings.topShadowBarColor;
         this.bottomShadowBarColor =  grSettings.bottomShadowBarColor;
+        this.textColor = grSettings.textColor;
+        this.textFont = grSettings.textFont;
+        this.textSize = grSettings.textSize;
+        /**Коэффициент минимальной разряженности между отображенными ценами (мин. расстояние вычисляется следующим образом: РазмерШрифта * Коэффициент разряженности)*/
+        this.defaultRatioPriceSpacing = grSettings.ratioPriceSpacing;
+        /**Минимальное расстояние между ценами(в px)*/
+        this.defaultPriceSpacing = this.textSize * this.defaultRatioPriceSpacing;
+        this.currentPriceSpacing = this.defaultPriceSpacing;
+
+        /**Минимальное расстояние между началом каждого времени (для отображения на графике)*/
+        this.timeSpacing = Math.ceil( grSettings.timeSpacing / ( this.widthBar + this.barSpacing) )*( this.widthBar + this.barSpacing);
 
         /**Количество цифр после запятой, которые учитываются в вычислениях*/
         this.decimalPlaces = grSettings.decimalPlaces;
@@ -62,48 +81,55 @@
 
         this.yPxStep;
         this.yPriceStep;
+        this.currentRatioPriceSpacing = this.defaultRatioPriceSpacing;
 
 
-        this.canvas = document.getElementById("canvas"+this.id);
-        this.gr = this.canvas.getContext("2d");
 
-//        this.convertBarsToGraphic(this.arrBars);
-        console.log( this.convertBarsToGraphic(this.arrBars) );
-        console.table( this.convertBarsToGraphic(this.arrBars) );
+
+        canvas = document.getElementById("canvas"+this.id);
+        this.gr = canvas.getContext("2d");
+
+        /**Получаем графический контекст для поля цены и даты*/
+        canvas = document.getElementById("rightCanvas"+this.id);
+        this.grRight = canvas.getContext("2d");
+        canvas = document.getElementById("bottomCanvas"+this.id);
+        this.grBottom = canvas.getContext("2d");
+
+
+        /**Линии области графика*/
+        this.gr.beginPath();
+        this.gr.moveTo(-0.5, this.topIndent+0.5);
+        this.gr.lineTo(this.width+0.5, this.topIndent+0.5);
+        this.gr.strokeStyle = 'lightgray';
+        this.gr.closePath();
+        this.gr.stroke();
+
+        this.gr.beginPath();
+        this.gr.moveTo(-0.5, this.topIndent+0.5+this.chartHeight);
+        this.gr.lineTo(this.width+0.5, this.topIndent+0.5+this.chartHeight);
+        this.gr.closePath();
+        this.gr.stroke();
+        /**END Линии области графика*/
+
+        this.grRight.strokeStyle = this.textColor;
+        this.grRight.fillStyle = this.textColor;
+        this.grRight.font = this.textFont;
+
+        this.grBottom.strokeStyle = this.textColor;
+        this.grBottom.fillStyle = this.textColor;
+        this.grBottom.font = this.textFont;
+
+//        console.table( this.convertBarsToGraphic(this.arrBars) );
         this.paintArrBars(this.convertBarsToGraphic(this.arrBars));
-//        this.paint();
-
-        console.log(this.chartHeight)
-
-//        console.log('this.yPxStep');
-//        console.log(this.yPxStep);
-//        console.log('this.yPriceStep');
-//        console.log(this.yPriceStep);
-
-//        console.log('y');
-//        console.log((this.maxPriceOnChart - this.arrBars[0].high)/ this.yPriceStep);
-//        y =  Math.round( (this.maxPriceOnChart - this.arrBars[0].high) / this.yPriceStep );
-//        console.log(y);
-
+//        this.paintArrBars(this.convertBarsToGraphic([{year:2015,month:5,day:3,hour:4, minute:38,open: 1.1399, high: 1.1399, low: 1.1052, close:1.1399}]));
+        this.paintPrices();
+        this.paintTimes();
 
     }
     GrChart.prototype = {
         constructor: GrChart,
         paint: function( arrGrBars, leftBarIndent ){
                     this.paintBar( 100, 50, 100, 110, 200, true);
-        //            leftBarIndent = leftBarIndent || 0;
-        //            var self = this;
-        //            arrGrBars.forEach(function(item, i, arr){
-        //                /**Если очередной бар - бар продажи, то рисуем бар продажи, иначе рисуем бар покупки*/
-        //                if( item['open'] < item['close'])
-        //                    self.paintBar(  self.widthBar + leftBarIndent, self._convertY(item['high']), self._convertY(item['open']),
-        //                                    self._convertY(item['close']), self._convertY(item['low']), false  );
-        //                else
-        //                    self.paintBar(  self.widthBar + leftBarIndent, self._convertY(item['high']), self._convertY(item['close']),
-        //                                    self._convertY(item['open']), self._convertY(item['low']), true  );
-        //            });
-
-
                 },
         /**
          * Функция отрисовки бара. Входные параметры заданы в пикселях.
@@ -181,11 +207,156 @@
                                 self.paintBar( item.x, item.yH , item.yBody, item.yCloseBody, item.yL, item.direction);
                             });
                         },
+
+        paintPrices: function (){
+            /**Вычислим шаг метки в px и шаг в значениях цены*/
+            /**Устанавливаем шаг в пикселях, с которым будут показываться цены*/
+            this.currentPriceSpacing =  Math.ceil( this.defaultPriceSpacing / this.yPxStep ) * this.yPxStep;
+            /**Шаг цен меток в значениях цены. Например, 0.0072*/
+            var valuePricingStep = ( this.currentPriceSpacing / this.yPxStep * this.yPriceStep).toFixed(this.decimalPlaces);
+            /*-END-----------------------------*/
+
+            /**Высота canvas без верхнего отступа*/
+            var heightWithoutTopIndent = this.height - this.topIndent - this.topIndentRelative;
+            /**Количество меток для отображения*/
+            var num = Math.ceil(heightWithoutTopIndent / this.currentPriceSpacing);
+            /**Текущая позиция метки в px*/
+            var position = this.topIndent + this.topIndentRelative;
+            /**Текущая цена метки (для отображения)*/
+            var curPrice = this.maxPriceOnChart;
+
+            for(var i=0; i< num; i++){
+                /**Рисуем черточку перед ценой*/
+                this.grRight.beginPath();
+                this.grRight.moveTo(-0.5, position+0.5 );
+                this.grRight.lineTo(5.5, position+0.5 );
+                this.grRight.closePath();
+                this.grRight.stroke();
+                /**Выводим цену*/
+                this.grRight.fillText(''+curPrice.toFixed(this.decimalPlaces), 10.5, position+this.textSize / 3);
+                position += this.currentPriceSpacing;
+                /**Если надпись снизу будет отображаться не полностью(т.е. выходить за рамки canvas), то не отображаем надпись*/
+                if(position > this.height - this.textSize/2)
+                    break;
+                curPrice = this._convertToFloat(this._convertToInt(curPrice - valuePricingStep, this.decimalPlaces), this.decimalPlaces);
+            }
+
+            /**Покажем цены выше максимальной цены**/
+            var heightTopIndent = this.topIndent + this.topIndentRelative;
+            num = Math.ceil(heightTopIndent / this.currentPriceSpacing) - 1;
+            position = this.topIndent + this.topIndentRelative - this.currentPriceSpacing;
+
+            var curPrice = this._convertToFloat(this._convertToInt(+this.maxPriceOnChart + +valuePricingStep, this.decimalPlaces), this.decimalPlaces);
+
+            for(var i=0; i< num; i++){
+                /**Если надпись сверху будет отображаться не полностью(т.е. выходить за рамки canvas), то не отображаем надпись*/
+                if(position <  this.textSize/2)
+                    break;
+                this.grRight.beginPath();
+                this.grRight.moveTo(-0.5, position+0.5 );
+                this.grRight.lineTo(5.5, position+0.5 );
+                this.grRight.closePath();
+                this.grRight.stroke();
+
+                this.grRight.fillText(curPrice.toFixed(this.decimalPlaces), 10.5, position + this.textSize / 3);
+                position -= this.currentPriceSpacing;
+                curPrice = this._convertToFloat(this._convertToInt(+curPrice + +valuePricingStep, this.decimalPlaces), this.decimalPlaces);
+            }
+        },
+        paintTimes: function(){
+            //ВРЕМЕННО
+            var widthText = this.grBottom.measureText('mmmm.mm.mm mm.mm').width;
+            var position = +this.widthBar/2 - +this.firstBarIndent + 0.5;
+            /**Индекс бара в массиве, для которого в данный момент отображается время*/
+            var curBarIndex = 0;
+            var textCurTime = this._formatTimeToStr(this.arrBars[curBarIndex]);
+            if( position < 0 ) {
+                position = +position + +this.widthBar + +this.barSpacing ;
+                curBarIndex++;
+                textCurTime = this._formatTimeToStr( this.arrBars[curBarIndex] );
+            }
+            /**Вычислим количество баров, через которое выводится время*/
+            var numBars = Math.round( this.timeSpacing / (+this.widthBar + +this.barSpacing) );
+
+            var num = Math.floor( (this.chartWidth - position) / this.timeSpacing );
+            for(var i=0; i< num; i++){
+                /**Рисуем черточку над временем*/
+                this.grBottom.beginPath();
+                this.grBottom.moveTo(position, -0.5 );
+                this.grBottom.lineTo(position, 5.5 );
+                this.grBottom.closePath();
+                this.grBottom.stroke();
+                /**Выводим цену*/
+//                this.grBottom.fillText( textCurTime, position - Math.round( this.textSize/3), 20.5);
+                this.grBottom.fillText( textCurTime, position , 15.5);
+                position += +this.timeSpacing;
+                curBarIndex += numBars;
+                if( curBarIndex >= this.arrBars.length )
+                    break;
+
+                textCurTime = this._formatTimeToStr(this.arrBars[curBarIndex]);
+            }
+        },
+        _formatTimeToStr: function(bar){
+            var strMonth ='';
+            switch(bar.month){
+                case 1: strMonth = 'Jan';
+                        break;
+                case 2: strMonth = 'Feb';
+                        break;
+                case 3: strMonth = 'Mar';
+                        break;
+                case 4: strMonth = 'Apr';
+                        break;
+                case 5: strMonth = 'May';
+                        break;
+                case 6: strMonth = 'Jun';
+                        break;
+                case 7: strMonth = 'Jul';
+                        break;
+                case 8: strMonth = 'Aug';
+                        break;
+                case 9: strMonth = 'Sep';
+                        break;
+                case 10: strMonth = 'Oct';
+                        break;
+                case 11: strMonth = 'Nov';
+                        break;
+                case 12: strMonth = 'Dec';
+                        break;
+            }
+
+            str =   '' + bar.year + '-' + strMonth + '-' + this._formatNumber( bar.day, 2) + ' ' +
+                this._formatNumber( bar.hour, 2) + ':' +this._formatNumber( bar.minute, 2);
+            return str;
+        },
+        /**
+         * Форматирует число, добавляя ведущие нули, если необходимо
+         * @param value - форматируемое число
+         * @param numPlaces - количество цифр для отображения
+         * @return - строка, где число выводится с необходимым количеством ведущих нулей
+         */
+        _formatNumber: function (value, numPlaces){
+            str = '';
+            if( typeof numPlaces === 'undefined')
+                numPlaces = 2;
+
+            if( value < Math.pow(10, numPlaces)){
+                /**Вычисляем количество нулей для добавления*/
+                var numZeros = numPlaces - (''+value).length;
+
+                for(var i=0; i< numZeros; i++)
+                    str += '0';
+            }
+            str += value;
+            return str;
+        },
         _convertX: function (x){
 
                     },
+        /**Сдвинуть вертикальную графическую координату на отступ сверху*/
         _convertY: function(y) {
-                        return y+this.topIndent;
+                        return y+this.topIndent + this.topIndentRelative;
                     },
         setArrBars: function( arrBars ){
                         this.arrBars = arrBars;
@@ -197,23 +368,20 @@
          * @param firstBarIndend - смещение первого бара по оси x
          * @returns {boolean} | Array
          */
-        convertBarsToGraphic:   function( arrBars, firstBarIndent, newArrBars ){
-                                    var self = this;
-                                    var arrGrBars = [];
-                                    if( newArrBars )
-                                        this._recalculateMinMaxPrices(newArrBars);
-                                    else
-                                        this._recalculateMinMaxPrices(arrBars);
-                                    this._recalculateYSteps();
-
+        convertBarsToGraphic:   function( arrBars, firstBarIndent ){
                                     if( typeof firstBarIndent === 'undefined')
                                         firstBarIndent = 0;
                                     if(typeof this.decimalPlaces === 'undefined') {
                                         writeLog('this.decimalPlaces === "undefined');
                                         return false;
                                     }
+                                    var self = this;
+                                    var arrGrBars = [];
+                                    this._recalculateMinMaxPrices(arrBars);
+                                    this._recalculateYSteps();
+                                    this._recalculateTopIndentRelative();
                                     /**Разница между максимальной и минимальной ценой ( переводится в целые числа)*/
-                                    var difference = Math.round(Math.pow(this.maxPriceOnChart - this.minPriceOnChart , this.decimalPlaces));
+//                                    var difference = Math.round(Math.pow(this.maxPriceOnChart - this.minPriceOnChart , this.decimalPlaces));
 
                                     if(typeof this.yPriceStep === 'undefined' || typeof this.yPxStep === 'undefined') {
                                         writeLog('this.priceStep или this.pxStep == "undefined');
@@ -223,14 +391,23 @@
                                     /**Формируем выходной массив с графическими данными для баров **/
                                     var firstX = this.widthBar/2 - firstBarIndent;
                                     var arrGrBars = [];
+                                    var x, yH, yBody, yCloseBody, yL, direction;
+
                                     arrBars.forEach( function( item, key, arr ){
+                                        x = firstX + (self.widthBar + self.barSpacing) * key;
+                                        yH = self._convertY(Math.round((self.maxPriceOnChart - item.high) / self.yPriceStep) * self.yPxStep);
+                                        yBody = self._convertY(Math.round((self.maxPriceOnChart - (item.open > item.close ? item.open : item.close)) / self.yPriceStep) * self.yPxStep);
+                                        yCloseBody = self._convertY(Math.round((self.maxPriceOnChart - (item.open < item.close ? item.open : item.close)) / self.yPriceStep) * self.yPxStep);
+                                        yL = self._convertY(Math.round((self.maxPriceOnChart - item.low) / self.yPriceStep) * self.yPxStep);
+                                        direction = item.open >= item.close ? false : true;
+//
                                         arrGrBars.push({
-                                            x: firstX+(self.widthBar+self.barSpacing) * key,
-                                            yH: self._convertY( Math.round( (self.maxPriceOnChart - item.high) / self.yPriceStep ) * self.yPxStep),
-                                            yBody: self._convertY( Math.round( (self.maxPriceOnChart - (item.open > item.close ? item.open : item.close)) / self.yPriceStep ) * self.yPxStep),
-                                            yCloseBody: self._convertY( Math.round( (self.maxPriceOnChart - (item.open < item.close ? item.open : item.close)) / self.yPriceStep ) * self.yPxStep),
-                                            yL: self._convertY( Math.round( (self.maxPriceOnChart - item.low) / self.yPriceStep ) * self.yPxStep),
-                                            direction: item.open >= item.close ? false : true,
+                                            x: x,
+                                            yH: yH,
+                                            yBody: yBody,
+                                            yCloseBody: yCloseBody,
+                                            yL: yL,
+                                            direction: direction,
                                         });
                                     });
                                     return arrGrBars;
@@ -245,13 +422,41 @@
         _recalculateYSteps:   function(){
             /**Разница между максимальной и минимальной ценой ( переводится в целые числа)*/
             var difference = Math.round((this.maxPriceOnChart - this.minPriceOnChart) * Math.pow( 10, this.decimalPlaces));
-//            console.log('difference');
-//            console.log(difference);
             if( this.chartHeight >= difference) {
                 this.yPriceStep = this.defaultPriceStep;
-                this.yPxStep = Math.floor( this.chartHeight / difference );
+                if(difference != 0 )
+                    this.yPxStep = Math.floor( this.chartHeight / difference );
+                else
+                    this.yPxStep = 1;
+            }else{
+                if( Math.round( ((difference / this.chartHeight)%1)*10 ) < 5) {
+                    this.yPxStep = 2;
+                    this.yPriceStep = this._convertToFloat( Math.floor(difference / this.chartHeight) * 3, this.decimalPlaces);
+                }
+                else {
+                    this.yPxStep = 1;
+                    this.yPriceStep = this._convertToFloat( Math.ceil(difference / this.chartHeight), this.decimalPlaces);
+                }
+
             }
+//            console.log('difference='+difference+' chartHeight='+this.chartHeight);
+//            console.log('yPxStep='+this.yPxStep+' yPriceStep='+this.yPriceStep)
         },
+        /**Располагаем график по середине (по вертикали)*/
+        _recalculateTopIndentRelative: function(){
+                                            /**Разница между максимальной и минимальной ценой ( переводится в целые числа)*/
+                                            var difference = Math.round((this.maxPriceOnChart - this.minPriceOnChart) * Math.pow( 10, this.decimalPlaces));
+                                            if( this.chartHeight >= difference) {
+                                                if( difference != 0)
+                                                    this.topIndentRelative = Math.floor( (this.chartHeight % difference) / 2 );
+                                                else
+                                                    this.topIndentRelative = Math.floor( (this.chartHeight ) / 2 );
+                                            }else{
+                                                this.topIndentRelative = Math.floor((this.chartHeight - difference / this._convertToInt(this.yPriceStep, this.decimalPlaces) * this.yPxStep) / 2 );
+                                            }
+//                                            console.log('topIndentRelative='+this.topIndentRelative);
+                                        },
+
         _findCountDecimalPlaces:    function( num ){
                                         /**Начальная точность (количество знаков после запятой)*/
                                         var countDecimalPlaces = 0;
@@ -265,6 +470,14 @@
                                         }
                                         return countDecimalPlaces;
                                     },
+        _convertToInt:   function ( num , decimalPlaces){
+                            decimalPlaces = decimalPlaces || 4;
+                            return Math.round(num * Math.pow(10, decimalPlaces));
+                        },
+        _convertToFloat:    function( num , decimalPlaces){
+                                decimalPlaces = decimalPlaces || 4;
+                                return +(num * Math.pow(10, -decimalPlaces)).toFixed(decimalPlaces);
+                            },
 
     }
 

@@ -21,6 +21,15 @@
         this.defaultTopShadowBarColor = '#9B9B9B';
         this.defaultBottomShadowBarColor = '#9B9B9B';
 
+        this.defaultTextColor = '#949494';
+        this.defaultTextSize = 12;
+        this.defaultTextFont = "bold "+this.defaultTextSize+"px sans-serif";
+        /**Коэффициент минимальной разряженности между отображенными ценами (мин. расстояние вычисляется следующим образом: РазмерШрифта * Коэффициент разряженности)*/
+        this.defaultRatioPriceSpacing = 3;
+
+        /**Минимальное расстояние между началом каждого времени (для отображения на графике)*/
+        this.defaultTimeSpacing = 150;
+
         this.arrPairs = [];
         this.arrWindow = [];
         this.lastChartIndex = 0;
@@ -157,16 +166,16 @@
                                         var strMainCanv = strTopCanv = strBottomCanv = strLeftCanv = strRightCanv = '';
                                         strMainCanv = '<canvas id="canvas'+(this.lastChartIndex)+'" class="main" width="'+mainCanvasWidth+'" height="'+mainCanvasHeight+'" style="'+strStyleMain+'"></canvas>';
                                         if(posTimeFields == 1 || posTimeFields == 3 )
-                                            strTopCanv = '<canvas class="topCanvas" width="'+mainCanvasWidth+'" height="'+settingsTimeFields['topHeight']+'" style="'+strStyleTop+'"></canvas>';
+                                            strTopCanv = '<canvas id="topCanvas'+(this.lastChartIndex)+'" class="topCanvas" width="'+mainCanvasWidth+'" height="'+settingsTimeFields['topHeight']+'" style="'+strStyleTop+'"></canvas>';
 
                                         if(posTimeFields == 2 || posTimeFields == 3 )
-                                            strBottomCanv = '<canvas class="bottomCanvas" width="'+mainCanvasWidth+'" height="'+settingsTimeFields['bottomHeight']+'" style="'+strStyleBottom+'"></canvas>';
+                                            strBottomCanv = '<canvas id="bottomCanvas'+(this.lastChartIndex)+'" class="bottomCanvas" width="'+mainCanvasWidth+'" height="'+settingsTimeFields['bottomHeight']+'" style="'+strStyleBottom+'"></canvas>';
 
                                         if(posPriceFields == 1 || posPriceFields == 3 )
-                                            strLeftCanv = '<canvas class="leftCanvas" width="'+settingsPriceFields['leftWidth']+'" height="'+mainCanvasHeight+'" style="'+strStyleLeft+'"></canvas>';
+                                            strLeftCanv = '<canvas id="leftCanvas'+(this.lastChartIndex)+'" class="leftCanvas" width="'+settingsPriceFields['leftWidth']+'" height="'+mainCanvasHeight+'" style="'+strStyleLeft+'"></canvas>';
 
                                         if(posPriceFields == 2 || posPriceFields == 3 )
-                                            strRightCanv = '<canvas class="rightCanvas" width="'+settingsPriceFields['rightWidth']+'" height="'+mainCanvasHeight+'" style="'+strStyleRight+'"></canvas>';
+                                            strRightCanv = '<canvas id="rightCanvas'+(this.lastChartIndex)+'" class="rightCanvas" width="'+settingsPriceFields['rightWidth']+'" height="'+mainCanvasHeight+'" style="'+strStyleRight+'"></canvas>';
 
 
 
@@ -193,6 +202,13 @@
                                                 bodyBorderBarColor: this.defaultBodyBorderBarColor,
                                                 topShadowBarColor: this.defaultTopShadowBarColor,
                                                 bottomShadowBarColor: this.defaultBottomShadowBarColor,
+
+                                                textColor: this.defaultTextColor,
+                                                textFont: this.defaultTextFont,
+                                                textSize: this.defaultTextSize,
+                                                ratioPriceSpacing: this.defaultRatioPriceSpacing,
+
+                                                timeSpacing: this.defaultTimeSpacing,
 
                                                 decimalPlaces: this.arrPairs[pairId].decimalPlaces,
                                             }, this )

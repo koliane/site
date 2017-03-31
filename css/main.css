@@ -23,3 +23,20 @@ canvas:nth-of-type(4) {
 canvas:nth-of-type(5) {
 	background-color: yellow;
 }
+canvas.topCanvas{
+	/*border-bottom: 1px solid black;*/
+}
+canvas.bottomCanvas{
+	/*border-top: 1px solid black;*/
+}
+canvas.leftCanvas{
+	/*border-right: 1px solid black;*/
+}
+canvas.rightCanvas{
+	/*border-left: 1px solid black;*/
+}
+.main{
+	/*border: 1px solid black;*/
+	/*position:relative;*/
+	/*z-index: 2;*/
+}
