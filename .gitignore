@@ -2,3 +2,4 @@
 error_log
 info/
 bower_components/
+/nbproject/private/

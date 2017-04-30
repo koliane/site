@@ -40,3 +40,9 @@ canvas.rightCanvas{
 	/*position:relative;*/
 	/*z-index: 2;*/
 }
+.window_menu_item {
+	height: 30px;
+	width: 30px;
+	background-color: green;
+	position: absolute;
+}
