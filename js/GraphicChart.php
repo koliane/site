@@ -44,7 +44,7 @@
         this.barSpacing = grSettings.barSpacing;
 
         /**Отступ от левого края для первого бара (может не входить полностью в canvas)*/
-        this.firstBarIndent = 3;
+        this.firstBarIndent = 0;
 
 
 
@@ -98,20 +98,7 @@
         this.grBottom = canvas.getContext("2d");
 
 
-        /**Линии области графика*/
-        this.gr.beginPath();
-        this.gr.moveTo(-0.5, this.topIndent + 0.5);
-        this.gr.lineTo(this.width + 0.5, this.topIndent + 0.5);
-        this.gr.strokeStyle = 'lightgray';
-        this.gr.closePath();
-        this.gr.stroke();
-
-        this.gr.beginPath();
-        this.gr.moveTo(-0.5, this.topIndent + 0.5 + this.chartHeight);
-        this.gr.lineTo(this.width + 0.5, this.topIndent + 0.5 + this.chartHeight);
-        this.gr.closePath();
-        this.gr.stroke();
-        /**END Линии области графика*/
+//        this.tempPaint();
 
         this.grRight.strokeStyle = this.textColor;
         this.grRight.fillStyle = this.textColor;
@@ -121,8 +108,6 @@
         this.grBottom.fillStyle = this.textColor;
         this.grBottom.font = this.textFont;
 
-        /**Id бара из полного массива баров(fullArrBars), с которого начинается массив для отображения на графике(arrBars)*/
-//        this.idFirstBar = 1;
 
 //        this._fillArrBars(false, 0);
 //        console.table(this.fullArrBars);
@@ -132,14 +117,10 @@
 //        console.table(this.arrBars);
 //        console.table( this.convertBarsToGraphic(this.arrBars) );
         this.arrGrBars = this.convertBarsToGraphic(this.arrBars, this.firstBarIndent);
-        this.paintArrBars( this.arrGrBars );
-//        this.paintArrBars(this.convertBarsToGraphic(this.arrBars, this.firstBarIndent));
-        this.paintPrices();
-        this.paintTimes();
-//        console.log(this._recalculateMaxCountBarsOnChart( true ));
+
 
         this.isMouseDown = false;
-        this.isRightIndent = true; //Есть ли отступ справа на текущий момент
+        this.isRightIndent = false; //Есть ли отступ справа на текущий момент
 
         /**Предыдущее положение курсора по оси Х*/
         this.prevMousePositionX;
@@ -148,359 +129,204 @@
         console.log(this.arrBars.length);
 //        this.gr.font = "bold 4px sans-serif";
 
+        this.summPxForStep = 0;
         /**Обработчик нажатия левой клавиши мыши на графике*/
         $('#canvas' + this.id).mousedown( function(e){
             self.isMouseDown = true;
             self.startMousceClickX = e.pageX;
             self.prevMousePositionX = e.pageX;
+            self.summPxForStep = 0;
+
+
+            console.log('');
+            console.log(e.clientX);
+            console.log(e.pageX);
+
+            if( self.modeDrawForSeek ){
+
+				
+                var offset = $(this).offset();
+				var width = 100;
+				var height = 100;
+                $('#canvas1').addLayer({
+                    fillStyle: 'darkblue',
+                    type: 'rectangle',
+                    draggable: true,
+                    // fillStyle: '#3366DD',
+                    fillStyle: 'rgba(75,75,255,0.7)',
+                    strokeStyle: 'blue',
+                    strokeWidth: 1,
+                    x: e.pageX - offset.left + width/2, y: e.pageY - offset.top + width/2,
+                    width: width, height: height,
+                    // Place a handle at each side and each corner
+                    handlePlacement: 'both',
+                    handle: {
+                        type: 'arc',
+                        fillStyle: '#fff',
+                        strokeStyle: 'blue',
+                        strokeWidth: 1,
+                        radius: 5
+                    },
+                    resizeFromCenter: false,
+					click: function(layer) {
+						alert()
+					}
+                }).drawLayers();
+            }
         });
         $('#canvas' + this.id).mouseup( function(){
             self.isMouseDown = false;
         });
         /**Обработчик события движения мыши с зажатой левой клавишей*/
         $('#canvas' + this.id).mousemove( function(e){
-            if( self.isMouseDown == true ) {
-//                self._moveChart( e );
+            if( self.isMouseDown == true && !self.modeDrawForSeek) {
+                self.summPxForStep -= self.prevMousePositionX - e.pageX;
 
-//                self.firstBarIndent = self.firstBarIndent + self.prevMousePositionX - e.pageX;
-//                self.prevMousePositionX = e.pageX;
-//                self.gr.clearRect( 0, 0, self.width, self.height );
-//                self.paintArrBars( self.convertBarsToGraphic( self.arrBars, self.firstBarIndent ) );
+                var numSteps =  ~~( self.summPxForStep/(self.widthBar + self.barSpacing) );
 
-//                console.log(self._recalcEndIndent());
-//                console.log(self.arrGrBars[self.arrGrBars.length - 1].x );
-//                self.moveChart(e);
+                if ( Math.abs( numSteps ) > 0) {
+                    self.moveChart(numSteps);
+                    self.summPxForStep = 0;
+                }
+                self.prevMousePositionX = e.pageX;
 
-//                console.log( 'arrBars.size');
-//                console.log(self.arrBars.length);
-//                console.log(self.widthBar);
             }
         });
 
         $( document ).keydown(function (e) {
             /*Обработка нажатия левой клавиши*/
             if(e.which == 37) {
-                alert();
+                self._moveChartLeft( 1,'bar',{ shiftFirstBar:'prev' } );
             }
             /*Обработка нажатия правой клавиши*/
             if(e.which == 39) {
-
-                self._moveChartRight(20);
-//                self._moveChartRight(1,'bar',{shiftFirstBar:'showFull',direction:'right'});
+                self._moveChartRight( 1,'bar',{ shiftFirstBar:'prev' } );
             }
         });
+
+
+        /************************************************************************************************************/
+        /************************************************************************************************************/
+        /************************************************************************************************************/
+
+
+        this.modeDrawForSeek = false;
+
+//        this.gr.fillStyle = 'rgba(255,255,255,0.8)';
+//        this.gr.fillRect( 0, 0, this.width, this.height );
+        console.log( this.buyBarColor );
+
+        $('.draw-figure-for-seeking').click( function(){
+
+        });
+        $('.mode-editor').click( function(){
+            self.modeDrawForSeek = !self.modeDrawForSeek;
+            if( self.modeDrawForSeek )
+                $('.draw-figure-for-seeking').css('display','inline-block');
+            else
+                $('.draw-figure-for-seeking').css('display','none');
+            self.repaint();
+        });
+
+
+
+
+//        $('#canvas1').addLayer({
+//            fillStyle: 'darkblue',
+//            type: 'rectangle',
+//            draggable: true,
+//            fillStyle: '#3366DD',
+//            strokeStyle: 'blue',
+//            strokeWidth: 2,
+//            x: 160, y: 150,
+//            width: 150, height: 80,
+//            // Place a handle at each side and each corner
+//            handlePlacement: 'both',
+//            handle: {
+//                type: 'arc',
+//                fillStyle: '#fff',
+//                strokeStyle: 'blue',
+//                strokeWidth: 2,
+//                radius: 5
+//            },
+//            resizeFromCenter: false
+//        })
+//            .drawLayers();
+        this.repaint();
+//        $('#canvas1').drawRect({
+//            fillStyle: '#3366DD',
+//            x: 100, y: 60,
+//            width: 100,
+//            height: 80,
+//            fromCenter: false
+//        });
     }
     GrChart.prototype = {
         constructor: GrChart,
-        /**
-         * Функция отрисовки бара. Входные параметры заданы в пикселях.
-         * @param x - горизонтальная координата, где будет находится середина бара
-         * @param yH - вертикальная координата, где будет начинаться high бара
-         * @param yBody
-         * @param yCloseBody
-         * @param yL
-         * @direction - тип бара(от этого параметра зависит цвет заливки тела бара). Если true - бар покупки.
-         */
-        paintBar: function (x, yH, yBody, yCloseBody, yL, direction) {
-            this.gr.fillText(x, x, this.height - 30);
-
-            var gr = this.gr;
-            var bodyColor = direction ? this.buyBarColor : this.sellBarColor;
 
 
-            /* xRatio - смещение бара на определенное значение в px (для более четкого отображения) по x
-             * yRatio - смещение бара на определенное значение в px (для более четкого отображения) по y
-             **/
-            if (gr.lineWidth % 2 == 0)
-                xRatio = 0;
-            else
-                xRatio = 0.5;
-            yRatio = xRatio;
-
-
-            /**Коррекция координат*/
-            x += xRatio;
-            yH += yRatio;
-            yBody += yRatio;
-            yCloseBody += yRatio;
-            yL += yRatio;
-
-            /**Отрисовка верхней тени*/
-            gr.beginPath();
-            gr.moveTo(x, yH);
-            gr.lineTo(x, yBody);
-            gr.strokeStyle = this.topShadowBarColor;
-            gr.closePath();
-            gr.stroke();
-
-            /**Отрисовка тела*/
-            if (this.widthBar == 1) {
-                gr.beginPath();
-                gr.moveTo(x, yBody);
-                gr.lineTo(x, yCloseBody);
-                gr.strokeStyle = bodyColor;
-                gr.closePath();
-                gr.stroke();
-            } else {
-                gr.beginPath();
-                gr.moveTo(x - this.widthBar / 2, yBody);
-                gr.lineTo(x - this.widthBar / 2, yCloseBody);
-                gr.lineTo(x + this.widthBar / 2, yCloseBody);
-                gr.lineTo(x + this.widthBar / 2, yBody);
-                gr.strokeStyle = this.bodyBorderBarColor;
-                gr.closePath();
-                gr.fillStyle = bodyColor;
-                gr.fill();
-                gr.stroke();
-            }
-
-            /**Отрисовка нижней тени*/
-            gr.beginPath();
-            gr.moveTo(x, yCloseBody);
-            gr.lineTo(x, yL);
-            gr.strokeStyle = this.bottomShadowBarColor;
-            gr.closePath();
-            gr.stroke();
-
-        },
-        paintArrBars: function (arrGrBars) {
-            var self = this;
-            arrGrBars.forEach(function (item, key) {
-                self.paintBar(item.x, item.yH, item.yBody, item.yCloseBody, item.yL, item.direction);
-                self.gr.fillText(self.indexFirstBar+key, item.x, 30);
-            });
-        },
-        paintPrices: function () {
-            /**Вычислим шаг метки в px и шаг в значениях цены*/
-            /**Устанавливаем шаг в пикселях, с которым будут показываться цены*/
-            this.currentPriceSpacing = Math.ceil(this.defaultPriceSpacing / this.yPxStep) * this.yPxStep;
-            /**Шаг цен меток в значениях цены. Например, 0.0072*/
-            var valuePricingStep = ( this.currentPriceSpacing / this.yPxStep * this.yPriceStep).toFixed(this.decimalPlaces);
-            /*-END-----------------------------*/
-
-            /**Высота canvas без верхнего отступа*/
-            var heightWithoutTopIndent = this.height - this.topIndent - this.topIndentRelative;
-            /**Количество меток для отображения*/
-            var num = Math.ceil(heightWithoutTopIndent / this.currentPriceSpacing);
-            /**Текущая позиция метки в px*/
-            var position = this.topIndent + this.topIndentRelative;
-            /**Текущая цена метки (для отображения)*/
-            var curPrice = this.maxPriceOnChart;
-
-            for (var i = 0; i < num; i++) {
-                /**Рисуем черточку перед ценой*/
-                this.grRight.beginPath();
-                this.grRight.moveTo(-0.5, position + 0.5);
-                this.grRight.lineTo(5.5, position + 0.5);
-                this.grRight.closePath();
-                this.grRight.stroke();
-                /**Выводим цену*/
-                this.grRight.fillText('' + curPrice.toFixed(this.decimalPlaces), 10.5, position + this.textSize / 3);
-                position += this.currentPriceSpacing;
-                /**Если надпись снизу будет отображаться не полностью(т.е. выходить за рамки canvas), то не отображаем надпись*/
-                if (position > this.height - this.textSize / 2)
-                    break;
-                curPrice = this._convertToFloat(this._convertToInt(curPrice - valuePricingStep, this.decimalPlaces), this.decimalPlaces);
-            }
-
-            /**Покажем цены выше максимальной цены**/
-            var heightTopIndent = this.topIndent + this.topIndentRelative;
-            num = Math.ceil(heightTopIndent / this.currentPriceSpacing) - 1;
-            position = this.topIndent + this.topIndentRelative - this.currentPriceSpacing;
-
-            var curPrice = this._convertToFloat(this._convertToInt(+this.maxPriceOnChart + +valuePricingStep, this.decimalPlaces), this.decimalPlaces);
-
-            for (var i = 0; i < num; i++) {
-                /**Если надпись сверху будет отображаться не полностью(т.е. выходить за рамки canvas), то не отображаем надпись*/
-                if (position < this.textSize / 2)
-                    break;
-                this.grRight.beginPath();
-                this.grRight.moveTo(-0.5, position + 0.5);
-                this.grRight.lineTo(5.5, position + 0.5);
-                this.grRight.closePath();
-                this.grRight.stroke();
-
-                this.grRight.fillText(curPrice.toFixed(this.decimalPlaces), 10.5, position + this.textSize / 3);
-                position -= this.currentPriceSpacing;
-                curPrice = this._convertToFloat(this._convertToInt(+curPrice + +valuePricingStep, this.decimalPlaces), this.decimalPlaces);
-            }
-        },
-        paintTimes: function () {
-            //ВРЕМЕННО
-            var widthText = this.grBottom.measureText('mmmm.mm.mm mm.mm').width;
-            var position = +this.widthBar / 2 - +this.firstBarIndent + 0.5;
-            /**Индекс бара в массиве, для которого в данный момент отображается время*/
-            var curBarIndex = 0;
-            var textCurTime = this._formatTimeToStr(this.arrBars[curBarIndex]);
-            if (position < 0) {
-                position = +position + +this.widthBar + +this.barSpacing;
-                curBarIndex++;
-                textCurTime = this._formatTimeToStr(this.arrBars[curBarIndex]);
-            }
-            /**Вычислим количество баров, через которое выводится время*/
-            var numBars = Math.round(this.timeSpacing / (+this.widthBar + +this.barSpacing));
-
-            var num = Math.floor((this.chartWidth - position) / this.timeSpacing);
-            for (var i = 0; i < num; i++) {
-                /**Рисуем черточку над временем*/
-                this.grBottom.beginPath();
-                this.grBottom.moveTo(position, -0.5);
-                this.grBottom.lineTo(position, 5.5);
-                this.grBottom.closePath();
-                this.grBottom.stroke();
-                /**Выводим цену*/
-//                this.grBottom.fillText( textCurTime, position - Math.round( this.textSize/3), 20.5);
-                this.grBottom.fillText(textCurTime, position, 15.5);
-                position += +this.timeSpacing;
-                curBarIndex += numBars;
-                if (curBarIndex >= this.arrBars.length)
-                    break;
-
-                textCurTime = this._formatTimeToStr(this.arrBars[curBarIndex]);
-            }
-        },
-        /**Сдвинуть график. e - параметр, для работы с мышкой*/
+        <?require_once "func_GraphicChart/repaint.php"?>
+        /**Сдвинуть график. */
         <?require_once "func_GraphicChart/moveChart.php"?>
 
-
-        /**
-         *  Функция сдвигает график направо, добавляя бары слева
-         *  @param {int} distance - расстояние или кол-во баров, на которые необходимо сдвинуть график
-         *  @param {string} type = 'px' - тип сдвига. Если type = 'px', то distance - кол-во пикселей. Если type = 'bar', то distance - кол-во бар
-         *  @param {object} options - параметры сдвига. Актуально, если type == bar
-         *  @param {object} options ( {shiftFirstBar: 'showFull' | 'prev', direction: 'left' | 'right' } ) - определяет, каким образом сдвигать бары (актуально только для type = 'bar').
-         *  Если shiftFirstBar == 'showFull', то бары добавляются, обнуляя левый(или правый) (зависит от direction) отступ(this.firstBarIndent), иначе this.firstBarIndent сохраняется.
-         **/
-        _moveChartRight: function( distance, type, options ){
-            /*Значения по умолчанию*/
-            if( typeof distance == 'undefined' || typeof distance != 'number' || distance == 0 )
+        moveChart: function( numSteps, direction ){
+            if( numSteps == 0 )
                 return;
-            distance = Math.abs( distance );
 
-            var default_shiftFirstBar = 'prev';
-            var default_direction = 'left';
-            type = type || 'px';
-            if( type == 'bar' ) {
-                if (typeof options == 'undefined') {
-                    options = {
-                        shiftFirstBar: default_shiftFirstBar,
-                        direction: default_direction
-                    }
-                } else {
-                    if( typeof options.shiftFirstBar == 'undefined' || typeof options.shiftFirstBar !== 'string' ||
-                        options.shiftFirstBar != 'showFull' && options.shiftFirstBar != 'prev' ) {
-                        options.shiftFirstBar = default_shiftFirstBar;
-                    }
-                    if( typeof options.direction == 'undefined' || typeof options.direction !== 'string' ||
-                        options.direction != 'left' && options.direction != 'right' ) {
-                        options.direction = default_direction;
-                    }
-                }
-            }
-            /*--------------------*/
-
-//            console.log('start');
-//            console.log( 'distance ='+ distance);
-//            console.log( 'type ='+ type);
-//            console.log( 'options.shiftFirstBar ='+ options.shiftFirstBar);
-//            console.log( 'options.direction ='+ options.direction);
-
-            if( type == 'bar' ){
-                if (options.shiftFirstBar == 'prev' ) {
-                    if (this.indexFirstBar - distance < 0) {
-                        this.indexFirstBar = 0;
-                        this.firstBarIndent = 0;
-                    } else
-                        this.indexFirstBar -= distance;
-                } else
-                if( options.direction == 'left' ) {
-                    if (options.shiftFirstBar == 'showFull') {
-
-                        if (this.firstBarIndent > 0 && this.indexFirstBar - distance + 1 < 0 ||
-                            this.firstBarIndent <= 0 && this.indexFirstBar - distance < 0
-                        ) {
-                            this.indexFirstBar = 0;
-                        } else if (this.firstBarIndent > 0)
-                            this.indexFirstBar -= distance - 1;
-                        else
-                            this.indexFirstBar -= distance;
-                        this.firstBarIndent = 0;
-                    }
-                }
+            if( typeof direction == 'undefined' ){
+                if( numSteps > 0 )
+                    this._moveChartRight( numSteps,'bar',{shiftFirstBar:'prev'} );
                 else
-                if( options.direction == 'right' ) {
-                    if (options.shiftFirstBar == 'showFull') {
-                        /*Если есть правый отступ*/
-                        if( this._recalcEndIndent() < 0 && Math.abs( this._recalcEndIndent() ) - (distance * (this.widthBar + this.barSpacing)) > 0){
-                            if (this.indexFirstBar - distance < 0) {
-                                this.indexFirstBar = 0;
-                                this.firstBarIndent = 0;
-                            } else
-                                this.indexFirstBar -= distance;
-                        }else
-                        if (this._recalcEndIndent() > 0 && this.indexFirstBar - distance + 1 < 0 ||
-                            this._recalcEndIndent() <= 0 && this.indexFirstBar - distance < 0
-                        ) {
-                            this.indexFirstBar = 0;
-//                            this.firstBarIndent = 0;
-
-                        } else if (this._recalcEndIndent() < 0) {
-                            this.indexFirstBar -= distance - 1;
-                            this.firstBarIndent += this._recalcEndIndent();
-
-                        }
-                        else
-                        {
-                            this.indexFirstBar -= distance;
-                            this.firstBarIndent += this._recalcEndIndent();
-
-                        }
-
-                        if(  this.indexFirstBar === 0 && this.firstBarIndent < 0 )
-                            this.firstBarIndent = 0;
-                    }
-                }
+                    this._moveChartLeft( numSteps,'bar',{shiftFirstBar:'prev'} );
+            }else{
+                if( direction == 'left' )
+                    this._moveChartLeft( Math.abs( numSteps ),'bar',{shiftFirstBar:'prev'} );
+                else
+                    this._moveChartRight( Math.abs( numSteps ),'bar',{shiftFirstBar:'prev'} );
             }
-            /*Если type='px'*/
-            else {
-                /*Узнаем сколько баров умещается в пространство слева*/
-                var numBarsInLeftIndent = Math.floor( Math.abs(distance - this.firstBarIndent + this.widthBar )/(this.widthBar + this.barSpacing) ) ;
-//
-                if( this.indexFirstBar - numBarsInLeftIndent < 0){
-                    this.indexFirstBar = 0;
-                    this.firstBarIndent = 0;
-                }else{
-                    this.indexFirstBar -= numBarsInLeftIndent;
-//                    console.log('gg');
-//                    console.log('numBarsInLeftIndent'+numBarsInLeftIndent);
-//                    console.log(distance - this.firstBarIndent + this.widthBar - 1);
-                    if( numBarsInLeftIndent === 0 ) {
-//                        if( this.firstBarIndent <=0 )
-                            this.firstBarIndent -= distance;
-//                        else
-//                            this.firstBarIndent += distance;
-
-                    }
-                    else {
-                        this.firstBarIndent = this.widthBar - Math.floor( Math.abs(distance - this.firstBarIndent + this.widthBar )/(this.widthBar + this.barSpacing) );
-//                        console.log('indent='+this.firstBarIndent);
-                    }
-                }
-
-//                console.log(distance);
-//                console.log('indent='+this.firstBarIndent);
-////                console.log((this.widthBar + this.barSpacing));
-//                console.log( 'num='+numBarsInLeftIndent);
-            }
-
-            this._fillArrBars( this.indexFirstBar );
-            this.gr.clearRect( 0, 0, this.width, this.height );
-            this.paintArrBars( this.convertBarsToGraphic( this.arrBars, this.firstBarIndent ) );
         },
+        tempPaint: function(){
+            /**Линии области графика*/
+            this.gr.beginPath();
+            this.gr.moveTo(-0.5, this.topIndent + 0.5);
+            this.gr.lineTo(this.width + 0.5, this.topIndent + 0.5);
+            this.gr.strokeStyle = 'lightgray';
+            this.gr.closePath();
+            this.gr.stroke();
+
+            this.gr.beginPath();
+            this.gr.moveTo(-0.5, this.topIndent + 0.5 + this.chartHeight);
+            this.gr.lineTo(this.width + 0.5, this.topIndent + 0.5 + this.chartHeight);
+            this.gr.closePath();
+            this.gr.stroke();
+
+
+            /*rightIndent*/
+            this.gr.beginPath();
+            this.gr.moveTo(this.width-this.rightIndent+0.5, -0.5);
+            this.gr.lineTo(this.width-this.rightIndent+0.5, 0.5+ this.height);
+            this.gr.closePath();
+            this.gr.stroke();
+            /**END Линии области графика*/
+
+            /*rightIndent*/
+            this.gr.beginPath();
+            this.gr.moveTo(this.width-this.rightIndent+0.5, -0.5);
+            this.gr.lineTo(this.width-this.rightIndent+0.5, 0.5+ this.height);
+            this.gr.closePath();
+            this.gr.stroke();
+        },
+
+
         /**Высчитываем расстояние от правой границы canvas до самого правого бара графика.
          * Если вплотную к границе, то = 0. Если выходит за рамки, то > 0, иначе < 0*/
         _recalcEndIndent: function(){
-            return -( this.width - (this.arrBars.length*( +this.widthBar + +this.barSpacing) - this.barSpacing - this.firstBarIndent ) - 1 );
+            var res = -( this.width - (this.arrBars.length*( +this.widthBar + +this.barSpacing) - this.barSpacing - this.firstBarIndent ) - 1 );
+            if( Math.abs(res) >= this.widthBar + this.barSpacing && !this.isRightIndent  ) {
+                res = res % (this.widthBar + this.barSpacing);
+            }
+
+            return res;
         },
         _formatTimeToStr: function (bar) {
             var strMonth = '';
@@ -596,6 +422,8 @@
             this._recalculateYSteps();
             this._recalculateTopIndentRelative();
 
+
+//            this.maxCountBarOnChart = this._recalculateMaxCountBarsOnChart(  );
 //            this.maxCountBarOnChart = this._recalculateMaxCountBarsOnChart( this.isRightIndent );
             /**Разница между максимальной и минимальной ценой ( переводится в целые числа)*/
 //                                    var difference = Math.round(Math.pow(this.maxPriceOnChart - this.minPriceOnChart , this.decimalPlaces));
@@ -752,6 +580,23 @@
             }else
                 writeLog('Массив fullArrBars пуст или не объявлен');
         },
+        repaint: function(){
+            this.gr.clearRect( 0, 0, this.width, this.height );
+            this.paintArrBars( this.convertBarsToGraphic( this.arrBars, this.firstBarIndent ) );
+
+            this.grRight.clearRect( 0, 0, this.width, this.height );
+            this.grBottom.clearRect( 0, 0, this.width, this.height );
+            this.paintPrices();
+            this.paintTimes();
+
+            if( this.modeDrawForSeek ){
+                this.gr.fillStyle = 'rgba(255,255,255,0.9)';
+                this.gr.fillRect( 0, 0, this.width, this.height );
+            }
+        },
+        repaintEditor: function(){
+
+        }
 
     }
 

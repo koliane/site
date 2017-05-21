@@ -5,6 +5,7 @@
 <? require_once "js/GraphicBar.php"; ?>
 <? require_once "js/GraphicChart.php"; ?>
 <? require_once "js/WindowsManager.php"; ?>
+<? require_once "js/Menu.php"; ?>
 <? require_once "js/main.php"; ?>
 </BODY>
 </HTML>

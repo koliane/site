@@ -6,7 +6,7 @@
         this.defaultHeightWindow = 350;
         this.defaultTopIndent = 40;
         this.defaultBottomIndent = 40;
-        this.defaultRightIndent = 200;
+        this.defaultRightIndent = 100;
 //        this.defaultLeftIndent = 0;
         this.defaultWidthPriceIndicator = 80;
         this.defaultHeightTimeIndicator = 80;
@@ -23,7 +23,8 @@
 
         this.defaultTextColor = '#949494';
         this.defaultTextSize = 12;
-        this.defaultTextFont = "bold " + this.defaultTextSize + "px sans-serif";
+        this.defaultTextFont = "" + this.defaultTextSize + "px sans-serif";
+//        this.defaultTextFont = "bold " + this.defaultTextSize + "px sans-serif";
         /**Коэффициент минимальной разряженности между отображенными ценами (мин. расстояние вычисляется следующим образом: РазмерШрифта * Коэффициент разряженности)*/
         this.defaultRatioPriceSpacing = 3;
 
@@ -176,10 +177,13 @@
             if (posPriceFields == 2 || posPriceFields == 3)
                 strRightCanv = '<canvas id="rightCanvas' + (this.lastChartIndex) + '" class="rightCanvas" width="' + settingsPriceFields['rightWidth'] + '" height="' + mainCanvasHeight + '" style="' + strStyleRight + '"></canvas>';
 
-            var windowMenu = '<div id="window_menu_item_' + (this.lastChartIndex) + '" class="window_menu_item"></div>';
+//            var windowMenu = '<div id="window_menu_item_' + (this.lastChartIndex) + '" class="window_menu_item"><i class="fa fa-pencil-square" aria-hidden="true"></i></div>';
+            var windowMenu = '';
 
-            var strHtml = '<div id="window' + (this.lastChartIndex) + '" class="window">' + windowMenu
-                + strMainCanv + strTopCanv + strBottomCanv + strLeftCanv + strRightCanv + '</div>';
+            var strHtml = '<div id="window' + (this.lastChartIndex) + '" class="window">' + windowMenu + '<div class="window-chart">'
+                + strMainCanv + strTopCanv + strBottomCanv + strLeftCanv + strRightCanv + '</div></div>';
+//            var strHtml = '<div id="window' + (this.lastChartIndex) + '" class="window">' + windowMenu
+//                + strMainCanv + strTopCanv + strBottomCanv + strLeftCanv + strRightCanv + '</div>';
             $('.windows').append(strHtml);
 
             this.arrWindow.push(new GrChart(mainCanvasWidth, mainCanvasHeight,
