@@ -2,6 +2,7 @@ body {
 	margin: 0;
 	font-family: Helvetica Neue,Helvetica,Arial Unicode MS,Arial;
 	font-size:12px;
+	height: 100%;
 }
 .window, .window-chart{
 	position: relative;
@@ -90,5 +91,67 @@ canvas.rightCanvas{
 	opacity:0.6;
 	font-size: 16px;
 }
-.mode-editor{
+.draw-figure-for-seeking, .mode-editor{
+	-moz-user-select: none;
+	-khtml-user-select: none;
+	user-select: none;   
+}
+.block_settings{
+	background-color: whitesmoke;
+	position: absolute;
+	top: 35px;
+	right: 0;
+	width: 240px;
+	min-height: 300px;
+	color: rgb(112, 112, 112);
+}
+.block_settings__group{
+	padding: 12px 0px 12px 18px;
+	border-bottom: 1px solid rgb(192, 192, 192);
+}
+.group_title{
+	padding: 0px 0px 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 200px;
+    font-weight: bold;
+	
+    text-align: left;
+    cursor: default;
+}
+.group_line{
+	white-space: nowrap;
+}
+.group_line label{
+	margin-right: 15px;	
+}
+input[type="number"]{
+	padding-left: 5px;
+}
+input::-webkit-input-placeholder{ color: lightgray;}
+input:-moz-placeholder{ color: lightgray;}
+input::-moz-placeholder{ color: lightgray;}
+input:-ms-input-placeholder{ color: lightgray;}
+.bar_count input{ width: 50px;}
+input[type="checkbox"]{
+	width: auto;
+	margin-left: 0;
+}
+.margin-top-20{
+	margin-top: 20px;
+}
+.group-line-title{
+	margin-bottom: 10px;
+}
+.content-after{
+	margin-bottom: 5px;
+}
+.price-diapason{
+	
+}
+.price-diapason.disabled{
+	opacity: 0.4;
+}
+.block_name input{
+	width: 189px;
 }

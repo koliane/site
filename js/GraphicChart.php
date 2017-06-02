@@ -125,8 +125,8 @@
         /**Предыдущее положение курсора по оси Х*/
         this.prevMousePositionX;
 
-        console.log( 'arrBars.size');
-        console.log(this.arrBars.length);
+        // console.log( 'arrBars.size');
+        // console.log(this.arrBars.length);
 //        this.gr.font = "bold 4px sans-serif";
 
         this.summPxForStep = 0;
@@ -138,40 +138,12 @@
             self.summPxForStep = 0;
 
 
-            console.log('');
-            console.log(e.clientX);
-            console.log(e.pageX);
 
             if( self.modeDrawForSeek ){
-
-				
-                var offset = $(this).offset();
-				var width = 100;
-				var height = 100;
-                $('#canvas1').addLayer({
-                    fillStyle: 'darkblue',
-                    type: 'rectangle',
-                    draggable: true,
-                    // fillStyle: '#3366DD',
-                    fillStyle: 'rgba(75,75,255,0.7)',
-                    strokeStyle: 'blue',
-                    strokeWidth: 1,
-                    x: e.pageX - offset.left + width/2, y: e.pageY - offset.top + width/2,
-                    width: width, height: height,
-                    // Place a handle at each side and each corner
-                    handlePlacement: 'both',
-                    handle: {
-                        type: 'arc',
-                        fillStyle: '#fff',
-                        strokeStyle: 'blue',
-                        strokeWidth: 1,
-                        radius: 5
-                    },
-                    resizeFromCenter: false,
-					click: function(layer) {
-						alert()
-					}
-                }).drawLayers();
+				var offset = $(this).offset();
+				self.indexActiveRect = self.selectRectForSeeking( e.pageX - offset.left, e.pageY - offset.top);
+				self.showRectSettings();
+				self.repaintRetcsForSeeking();
             }
         });
         $('#canvas' + this.id).mouseup( function(){
@@ -194,14 +166,16 @@
         });
 
         $( document ).keydown(function (e) {
-            /*Обработка нажатия левой клавиши*/
-            if(e.which == 37) {
-                self._moveChartLeft( 1,'bar',{ shiftFirstBar:'prev' } );
-            }
-            /*Обработка нажатия правой клавиши*/
-            if(e.which == 39) {
-                self._moveChartRight( 1,'bar',{ shiftFirstBar:'prev' } );
-            }
+			if( $('.windows').is( ":hover" )){
+				/*Обработка нажатия левой клавиши*/
+				if(e.which == 37) {
+					self._moveChartLeft( 1,'bar',{ shiftFirstBar:'prev' } );
+				}
+				/*Обработка нажатия правой клавиши*/
+				if(e.which == 39) {
+					self._moveChartRight( 1,'bar',{ shiftFirstBar:'prev' } );
+				}
+			}
         });
 
 
@@ -211,55 +185,37 @@
 
 
         this.modeDrawForSeek = false;
-
-//        this.gr.fillStyle = 'rgba(255,255,255,0.8)';
-//        this.gr.fillRect( 0, 0, this.width, this.height );
-        console.log( this.buyBarColor );
+		
+		this.widthBlockForSeeking = 70;
+		this.heightBlockForSeeking = 70;
+		this.spacingBlockForSeeking = 30;
+		<?require_once "func_GraphicChart/editor_construct.php"?>
 
         $('.draw-figure-for-seeking').click( function(){
-
+			if( (self.arrRectForSeeking.length +1) * ( self.spacingBlockForSeeking + self.widthBlockForSeeking ) < self.width ){
+				self.indexActiveRect = self.arrRectForSeeking.length;
+				// self.drawRectForSeeking( self.spacingBlockForSeeking + ( self.spacingBlockForSeeking + self.widthBlockForSeeking )*self.arrRectForSeeking.length, self.height/2 -self.heightBlockForSeeking/2, self.widthBlockForSeeking, self.heightBlockForSeeking);
+				self.arrRectForSeeking.push( new RectForSeeking('rect_'+self.indexActiveRect) );
+				self.showRectSettings();
+				self.repaintRetcsForSeeking();
+			}
+			console.table(self.arrRectForSeeking);
+		
         });
         $('.mode-editor').click( function(){
             self.modeDrawForSeek = !self.modeDrawForSeek;
-            if( self.modeDrawForSeek )
+            if( self.modeDrawForSeek ){
                 $('.draw-figure-for-seeking').css('display','inline-block');
+				// self.repaintRetcsForSeeking();
+			}
             else
                 $('.draw-figure-for-seeking').css('display','none');
             self.repaint();
         });
 
 
-
-
-//        $('#canvas1').addLayer({
-//            fillStyle: 'darkblue',
-//            type: 'rectangle',
-//            draggable: true,
-//            fillStyle: '#3366DD',
-//            strokeStyle: 'blue',
-//            strokeWidth: 2,
-//            x: 160, y: 150,
-//            width: 150, height: 80,
-//            // Place a handle at each side and each corner
-//            handlePlacement: 'both',
-//            handle: {
-//                type: 'arc',
-//                fillStyle: '#fff',
-//                strokeStyle: 'blue',
-//                strokeWidth: 2,
-//                radius: 5
-//            },
-//            resizeFromCenter: false
-//        })
-//            .drawLayers();
         this.repaint();
-//        $('#canvas1').drawRect({
-//            fillStyle: '#3366DD',
-//            x: 100, y: 60,
-//            width: 100,
-//            height: 80,
-//            fromCenter: false
-//        });
+		
     }
     GrChart.prototype = {
         constructor: GrChart,
@@ -268,6 +224,8 @@
         <?require_once "func_GraphicChart/repaint.php"?>
         /**Сдвинуть график. */
         <?require_once "func_GraphicChart/moveChart.php"?>
+		
+		<?require_once "func_GraphicChart/editor_prototype.php"?>
 
         moveChart: function( numSteps, direction ){
             if( numSteps == 0 )
@@ -592,6 +550,7 @@
             if( this.modeDrawForSeek ){
                 this.gr.fillStyle = 'rgba(255,255,255,0.9)';
                 this.gr.fillRect( 0, 0, this.width, this.height );
+				this.repaintRetcsForSeeking();
             }
         },
         repaintEditor: function(){
