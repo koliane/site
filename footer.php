@@ -1,4 +1,7 @@
 <? //require_once "/lib/js_write_log.php"; ?>
+
+<script>window.glContext = this;</script>
+
 <? require_once "js/Bar.php"; ?>
 <? require_once "js/TimeFrame.php"; ?>
 <? require_once "js/Pair.php"; ?>

@@ -2,7 +2,7 @@
 require_once "../prolog.php";
 require_once "../lib/get_data_from_db.php";
 
-$pdo = connectToDB();
+// $pdo = connectToDB();
 
 $tableName = $_REQUEST['table'];
 $timeFrame = $_REQUEST['timeFrame'];

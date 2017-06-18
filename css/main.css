@@ -42,6 +42,7 @@ canvas.rightCanvas{
 	/*border: 1px solid black;*/
 	/*position:relative;*/
 	/*z-index: 2;*/
+	/* cursor: crosshair; */
 }
 .window_menu_item {
 	height: 30px;
@@ -121,6 +122,7 @@ canvas.rightCanvas{
 }
 .group_line{
 	white-space: nowrap;
+	display: inline-block;
 }
 .group_line label{
 	margin-right: 15px;	
@@ -141,7 +143,7 @@ input[type="checkbox"]{
 	margin-top: 20px;
 }
 .group-line-title{
-	margin-bottom: 10px;
+	margin-bottom: 5px;
 }
 .content-after{
 	margin-bottom: 5px;
@@ -154,4 +156,47 @@ input[type="checkbox"]{
 }
 .block_name input{
 	width: 189px;
+}
+li.text-menu{
+	padding-top: 2px;
+}
+li.send-seek-button{
+	position: absolute;
+	right: 30px;
+}
+.hidden{
+	display: none;
+}
+.indicator-OHLC{
+	height: 15px;
+	line-height: 15px;
+    /* background: red; */
+    display: inline-block;
+    /* width: 100px; */
+    position: absolute;
+    font-size: 10px;
+	white-space: pre;
+	padding: 2px 0 0 5px;
+}
+.wrapper_group_line{
+	margin-bottom:10px;
+}
+.wrapper_group-line-title{
+	margin-bottom:5px;
+	display: inline-block;
+	width: 50px;
+}
+.menu-separator{
+	border: none !important;
+	border-left:1px solid #e5e5e5 !important;
+	width: 5px;
+	box-sizing: border-box;
+}
+.menu-separator:hover{
+	border: none !important;
+	border-left:1px solid #e5e5e5 !important;
+}
+.active-timeframe {
+	background-color: lightgray;
+	border: 1px solid gray !important;
 }

@@ -11,5 +11,10 @@ function Pair( name, timeFrame, id, managerSettings ){
 }
 Pair.prototype = {
     constructor: Pair,
+	addTimeframe: function(name, timeFrame, managerSettings){
+		// if()
+			alert();
+		// this.timeFrames.push( new TimeFrame(name, timeFrame, managerSettings));
+	},
 }
 </script>

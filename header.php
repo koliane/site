@@ -12,23 +12,9 @@
 	<script src="bower_components/jcanvas/plugins/jcanvas-handles.min.js"></script>
 	<script src="bower_components/underscore/underscore-min.js"></script>
     <? require_once "/lib/js_write_log.php"; ?>
-    <?// require_once "js/Bar.php"; ?>
-    <?// require_once "js/TimeFrame.php"; ?>
-    <?// require_once "js/Pair.php"; ?>
-    <?// require_once "js/GraphicBar.php"; ?>
-    <?// require_once "js/GraphicChart.php"; ?>
-    <?// require_once "js/WindowsManager.php"; ?>
-    <?// require_once "js/main.php"; ?>
     <? require_once 'js/generatePrices.php';?>
-    <?/*
-    <script type="text/javascript" src="js/Bar.js" defer></script>
-    <script type="text/javascript" src="js/Pair.js" defer></script>
-    <script type="text/javascript" src="js/TimeFrame.js" defer></script>
-    <script type="text/javascript" src="js/main.js" defer></script>
-	<script src="bower_components/font-awesome/css/font-awesome.min.css"></script>
-*/
 
-    ?>
+	
     <link rel="stylesheet" type="text/css" href="css/main.css">
     <link rel="stylesheet" type="text/css" href="css/font-awesome/css/font-awesome.min.css">
 </HEAD>

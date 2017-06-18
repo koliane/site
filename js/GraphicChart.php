@@ -3,14 +3,13 @@
 
     function GrChart(width, height, grSettings, context) {
         var self = this;
-//        this.namePair = grSettings
-        this.arrBars = context.arrPairs[0].timeFrames[0].fullChart;
+		this.namePair = grSettings.pairName;
+		this.nameTimeframe = grSettings.timeframe;
 
-        var countOfBars = [90, 'm', 2, [2015, 5, 2, 23, 58]];
-//        this.arrBars = generatePrices(countOfBars, [1.1054, 1.1058], 100);
-//        this.arrBars = [{year:2015,month:5,day:3,hour:4, minute:38,open: 1.1399, high: 1.1399, low: 1.1052, close:1.1399}];
-//        console.table(this.arrBars);
-        this.fullArrBars = generatePrices(countOfBars, [1.1054, 1.1058], 50);
+        this.fullArrBars = context.arrPairs[0].timeFrames[0].fullChart;
+
+        // var countOfBars = [90, 'm', 2, [2015, 5, 2, 23, 58]];
+        // this.fullArrBars = generatePrices(countOfBars, [1.1054, 1.1058], 50);
 
         this.arrBars = [];
         this.arrGrBars = [];
@@ -114,9 +113,9 @@
         /**Индекс бара из полного массива баров(fullArrBars), с которого начинается массив для отображения на графике(arrBars)*/
         this.indexFirstBar = this.fullArrBars.length > +this.maxCountBarOnChart ? this.fullArrBars.length - +this.maxCountBarOnChart : 0;
         this._fillArrBars(  this.indexFirstBar );
-//        console.table(this.arrBars);
 //        console.table( this.convertBarsToGraphic(this.arrBars) );
         this.arrGrBars = this.convertBarsToGraphic(this.arrBars, this.firstBarIndent);
+       
 
 
         this.isMouseDown = false;
@@ -151,6 +150,21 @@
         });
         /**Обработчик события движения мыши с зажатой левой клавишей*/
         $('#canvas' + this.id).mousemove( function(e){
+			
+			/*Отобразим OHLC*/
+			if( !self.modeDrawForSeek ){
+				var offset = $(this).offset();
+				var eX = e.pageX - offset.left;
+				var indexBarHover = self._knowIdBarHoverMouse(eX);
+				if( indexBarHover !== false )
+					$('.indicator-OHLC').text(	self.arrBars[indexBarHover].year + '.'+ self._formatNumber( self.arrBars[indexBarHover].month ) + '.' + self._formatNumber( self.arrBars[indexBarHover].day) + ' '
+												+ self._formatNumber( self.arrBars[indexBarHover].hour ) + ':'+ self._formatNumber( self.arrBars[indexBarHover].minute ) +'    '
+												+ ' O: '+self.arrBars[indexBarHover].open + '  H: '+self.arrBars[indexBarHover].high + '  L: '+self.arrBars[indexBarHover].low+ '  C: '+self.arrBars[indexBarHover].close+ '  V: '+self.arrBars[indexBarHover].volume);
+				else
+					$('.indicator-OHLC').text('');
+			}
+			/*--------------*/
+			
             if( self.isMouseDown == true && !self.modeDrawForSeek) {
                 self.summPxForStep -= self.prevMousePositionX - e.pageX;
 
@@ -199,17 +213,20 @@
 				self.showRectSettings();
 				self.repaintRetcsForSeeking();
 			}
-			console.table(self.arrRectForSeeking);
+			// console.table(self.arrRectForSeeking);
 		
         });
         $('.mode-editor').click( function(){
             self.modeDrawForSeek = !self.modeDrawForSeek;
             if( self.modeDrawForSeek ){
                 $('.draw-figure-for-seeking').css('display','inline-block');
+                $('.send-seek-button').css('display','inline-block');
 				// self.repaintRetcsForSeeking();
 			}
-            else
+            else{
                 $('.draw-figure-for-seeking').css('display','none');
+                $('.send-seek-button').css('display','none');
+			}
             self.repaint();
         });
 
@@ -399,6 +416,7 @@
 
 
             arrBars.forEach(function (item, key, arr) {
+				id = item.id;
                 x = firstX + (self.widthBar + self.barSpacing) * key;
                 yH = self._convertY(Math.round((self.maxPriceOnChart - item.high) / self.yPriceStep) * self.yPxStep);
                 yBody = self._convertY(Math.round((self.maxPriceOnChart - (item.open > item.close ? item.open : item.close)) / self.yPriceStep) * self.yPxStep);
@@ -413,6 +431,7 @@
                     yCloseBody: yCloseBody,
                     yL: yL,
                     direction: direction,
+					id: id,
                 });
             });
             this.arrGrBars = arrGrBars;
@@ -426,8 +445,10 @@
                 return bar.high;
             }).high;
 
-            if (newMin < this.minPriceOnChart) this.minPriceOnChart = newMin;
-            if (newMax > this.maxPriceOnChart) this.maxPriceOnChart = newMax;
+            // if (newMin < this.minPriceOnChart) this.minPriceOnChart = newMin;
+            // if (newMax > this.maxPriceOnChart) this.maxPriceOnChart = newMax;
+			this.minPriceOnChart = newMin;
+            this.maxPriceOnChart = newMax;
         },
         _recalculateYSteps: function () {
             /**Разница между максимальной и минимальной ценой ( переводится в целые числа)*/
@@ -547,15 +568,52 @@
             this.paintPrices();
             this.paintTimes();
 
+			this._paintMatchLines();
             if( this.modeDrawForSeek ){
                 this.gr.fillStyle = 'rgba(255,255,255,0.9)';
                 this.gr.fillRect( 0, 0, this.width, this.height );
 				this.repaintRetcsForSeeking();
             }
         },
-        repaintEditor: function(){
-
-        }
+		/*Узнаем id бара, над которым находится мышка*/
+		_knowIdBarHoverMouse: function(mX){
+			var self = this;
+			var index=false;
+			this.arrGrBars.forEach(function(item, key){
+				if( mX >= item.x - self.widthBar/2 && mX < item.x + self.widthBar/2 ){
+					index = key;
+				}
+			});
+			return index;
+		},
+		setParamsInGrChart: function(namePair, nameTimeframe){
+			// console.log('namePair='+namePair);
+			// console.log('nameTimeframe='+nameTimeframe);
+			
+			var objPair = _.findWhere( manager.arrPairs, {name: this.namePair} );
+			if(typeof objPair == 'undefined'){
+				writeLog('Индекс валютной пары в массиве не найден. (Функция GrChart.setTimeframe)');
+				return false;
+			}
+			var indexPair = _.indexOf( manager.arrPairs, objPair );
+			// console.log('indexPair='+indexPair);
+			var objTimeframe = _.findWhere( manager.arrPairs[indexPair].timeFrames, {name: nameTimeframe} );
+			if(typeof objTimeframe == 'undefined'){
+				writeLog('Таймфрейм не найден. (Функция GrChart.setTimeframe)');
+				return false;
+			}
+			var indexTimeframe = _.indexOf( manager.arrPairs[indexPair].timeFrames, objTimeframe );
+			
+			
+			this.fullArrBars =  manager.arrPairs[indexPair].timeFrames[indexTimeframe].fullChart;
+			this.namePair = namePair;
+			this.nameTimeframe = nameTimeframe;
+			
+			this.indexFirstBar = this.fullArrBars.length > +this.maxCountBarOnChart ? this.fullArrBars.length - +this.maxCountBarOnChart : 0;
+			this._fillArrBars(  this.indexFirstBar );
+			this.arrGrBars = this.convertBarsToGraphic(this.arrBars, this.firstBarIndent);
+			this.repaint();
+		}
 
     }
 

@@ -1,4 +1,10 @@
 <?php 
+/**Пример вызова
+* $fileName = 'C:/Apache24/htdocs/trade/pair/EURUSD/h1/EURUSD60_0.txt';
+* $tableName = 'eurusd';
+* addTxtToDb( $fileName, $pdo, $tableName )
+*/
+
 #Построчное чтение файла .txt с котировками - преобразование строки для добавления в БД - добавление в БД
 	function addTxtToDb( $fileName, $pdo, $tableName ) {
 			$file = fopen( $fileName, 'r') or die('Ошибка открытия файла');
@@ -6,9 +12,12 @@
 				$str = fgets( $file );
 				$strCol = convertColDbToStr( $pdo, $tableName );
 				$strValues = convertStringToRowDb( $str );
+				
+				
+				file_put_contents('pair/EURUSD/mn/EURUSD_mn_0_toDB.csv',$strValues, FILE_APPEND );
 
-				$strQuery = "INSERT INTO $tableName ({$strCol}) VALUES ({$strValues})";
-				$pdo->query($strQuery);
+				// $strQuery = "INSERT INTO $tableName ({$strCol}) VALUES ({$strValues})";
+				// $pdo->query($strQuery);
 			}
 	}
 #Функция заменяет в строке точки у даты и двоеточие у времени на запятые
@@ -31,4 +40,10 @@
 		}
 		return $str;
 	}
+	
+// $tableName = 'eurusd';
+// $fileName = 'C:/Apache24/htdocs/trade/pair/EURUSD/mn/EURUSD43200.csv';
+// addTxtToDb( $fileName, $pdo, $tableName );
+	
+	
  ?>

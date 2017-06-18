@@ -14,6 +14,11 @@
         this.defaultWidthBar = 8;
         this.defaultBarSpacing = 5;
         this.defaultScale = 5;
+		
+		this.defaultCountBarsForGet = 300;
+		
+		this.defaultTimeframe = 'h1';
+		this.defaultPairName = 'eurusd';
 
         this.defaultBuyBarColor = '#00E100';
         this.defaultSellBarColor = '#FF0000';
@@ -34,7 +39,9 @@
         this.arrPairs = [];
         this.arrWindow = [];
         this.lastChartIndex = 0;
-        this.arrPairs.push(new Pair('eurusd', 'm1', this.arrPairs.length, {countBarsForGet: 5, decimalPlaces: 4}));
+        // this.arrPairs.push(new Pair('eurusd', 'h1', this.arrPairs.length, {countBarsForGet: 300, decimalPlaces: 4}));
+		this.activePairName = this.defaultPairName;
+        this.arrPairs.push(new Pair( this.defaultPairName, this.defaultTimeframe, this.arrPairs.length, {countBarsForGet: this.defaultCountBarsForGet, decimalPlaces: 4}));
 
 
         this.arrWindow.push(this.createNewWindow(0));
@@ -188,6 +195,9 @@
 
             this.arrWindow.push(new GrChart(mainCanvasWidth, mainCanvasHeight,
                 {
+					timeframe: this.defaultTimeframe,
+					pairName: this.defaultPairName,
+					
                     settingsPriceFields: settingsPriceFields,
                     settingsTimeFields: settingsTimeFields,
 
@@ -218,9 +228,6 @@
             );
             return this.lastChartIndex;
         },
-        paint: function () {
-
-        }
     }
 
 </script>

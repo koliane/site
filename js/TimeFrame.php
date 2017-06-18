@@ -8,6 +8,7 @@ function TimeFrame(pairName, name, managerSettings){
     this.startId = 0;
     this.endId = 0;
     this.addBarsToChart("", managerSettings.countBarsForGet);
+	this.fullMatches = [];
 }
 
 
@@ -15,7 +16,7 @@ TimeFrame.prototype = {
     constructor: TimeFrame,
 
     /**Получить необходимые бары с сервера и добавить их в общий график */
-    addBarsToChart: function(startTime, endTimeOrCount){
+    addBarsToChart: function(startTime, endTimeOrCount, funcSuccess){
                             var paramObj;
                             var res;
 
@@ -50,9 +51,13 @@ TimeFrame.prototype = {
                                         console.warn(err);
                                     }
                                     self._addBarsToChart(dataBars);
+									
+									if( typeof funcSuccess != 'undefined' ){
+										funcSuccess();
+									}
 //                                    self._addBarsToChart(dataBars);
 //                                    console.table(dataBars);
-                                    console.table(self.fullChart);
+                                    // console.table(self.fullChart);
                                 }
                             });
                         },
